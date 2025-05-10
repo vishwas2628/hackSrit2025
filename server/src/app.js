@@ -1,10 +1,24 @@
 import express from "express";
+import cookieParser from "cookie-parser";
+import cors from cors
+
 
 const app = express();
-const PORT = 3000;
+
 
 //middleware
-app.use(express.json());
+
+app.use(cors({
+  origin: process.env.CLIENT_URL,
+  Credential: true
+}))
+
+
+app.use(express.json({
+  limit: "100kb"
+}))
+
+app.use(cookieParser())
 
 //root api testing
 app.get("/", (req, res) => {

@@ -3,12 +3,24 @@
   "version": "1.0.0",
   "description": "hackathon",
   "main": "index.js",
+  "type": "module",
   "scripts": {
-    "test": "text"
+    "test": "text",
+    "start": "nodemon src/index.js",
+    "dev": "nodemon src/index.js"
   },
   "author": "Sachin Sen",
   "license": "ISC",
   "dependencies": {
-    "express": "^5.1.0"
+    "axios": "^1.9.0",
+    "bcrypt": "^5.1.1",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.5",
+    "dotenv": "^16.5.0",
+    "express": "^4.18.2",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.14.2",
+    "nodemon": "^3.1.10",
+    "winston": "^3.17.0"
   }
 }

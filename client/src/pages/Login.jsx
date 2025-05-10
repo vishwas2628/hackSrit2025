@@ -1,40 +1,50 @@
-import Btn  from "../components/ui/Btn.jsx";
-import Inp  from "../components/ui/Inp.jsx";
-import Image from '../assets/login_background_dark.png'
-import React from "react";
+import React from 'react';
+import assets from '../assets/assets.js';
 
-const Login= () => {
+const Login = () => {
   return (
-    <div className="h-screen w-screen bg-gray-900 flex " >
-        <div className="flex flex-col justify-center  p-8 md:w-1/2" style={{
-        backgroundColor:"#262727"
-      }}>
-          <div className="mb-8">
-            <img
-              src="../assets/futuremapLogo.png"
-              alt="FutureMap Logo"
-              className="h-12 mb-4"
+    <div className="flex h-screen bg-[#212121]">
+      {/* Left Section */}
+      <div className="w-full sm:w-1/2 flex flex-col justify-center items-center bg-[#212121] text-white p-8">
+        <h1 className="text-2xl font-semibold mb-2">Log in to <span className="text-blue-500">FutureMap</span></h1>
+        <p className="text-sm mb-8">
+          Don't have an account? <a href="/signup" className="text-blue-500 hover:underline">Create an account</a>
+        </p>
+        {/* Login Form */}
+        <form className="w-full max-w-sm">
+          <div className="mb-4">
+            <label htmlFor="email" className="block text-sm font-medium mb-1">Email-id</label>
+            <input
+              type="email"
+              id="email"
+              className="w-full p-3 bg-[#333333] text-white rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
-            <h2 className="text-3xl text-white font-bold">Log in to <span className="text-blue-500">FutureMap</span></h2>
-            <p className="text-gray-400 mt-2">
-              Don't have an account? <a href="/register" className="text-blue-500 underline">Create an account</a>
-            </p>
           </div>
-          <form>
-            <Inp/>
-            <Inp/>
-            < Btn text1="Sign-In"/>
-          </form>
-        </div>
-        <div  style={{
-        backgroundImage: `url(${Image})`,
-        backgroundSize: 'contain', // or 'contain', 'auto'
-        backgroundRepeat: 'no-repeat',
-        height: '100%', // Set the height of the div
-        width: '100%', // Set the width of the div
-      }}>
-        </div>
+          <div className="mb-6">
+            <label htmlFor="password" className="block text-sm font-medium mb-1">Password</label>
+            <input
+              type="password"
+              id="password"
+              className="w-full p-3 bg-[#333333] text-white rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+          <button
+            type="submit"
+            className="w-full bg-blue-500 text-white py-3 rounded font-semibold hover:bg-blue-600 transition"
+          >
+            Sign in
+          </button>
+        </form>
       </div>
+
+      {/* Right Section */}
+      <div
+        className="hidden sm:block sm:w-1/2 bg-cover bg-center"
+        style={{
+          backgroundImage: `url(${assets.login_background_dark})`,
+        }}
+      ></div>
+    </div>
   );
 };
 

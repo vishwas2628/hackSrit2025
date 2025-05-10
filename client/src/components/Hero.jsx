@@ -1,22 +1,20 @@
-import React from 'react'
-import assets from '../assets/assets.js'
+import React from 'react';
 
 const Hero = () => {
   return (
-            <div className="flex flex-col sm:flex-row border border-gray-400">
-                <div className="w-full sm:w-1/2 flex items-center justify-center py-10 sm:py-0">
-                    <div className="text-[#414141]">
-                        <h1 className="prata-regular text-3xl sm:py-3 lg:text-5xl leading-relaxed">Discover your perfect Career path with AI</h1>
-                        <div className="flex items-center gap-2">
-                            <p className="font-semibold text-sm md:text-base">SHOP NOW</p>
-                            <p className="w-8 md:w-11 h-[1px] bg-[#414141]"></p>
-                        </div>
-                    </div>
-                </div>
-                <img src={assets.logo} className="w-full sm:w-1/2" alt="" />
-    
-            </div>
-  )
-}
+    <div className="w-full mt-10 mb-5 flex items-center justify-center py-10 sm:py-0">
+      <div className="text-center text-[#fff]">
+        <h1 className="prata-regular text-4xl sm:text-5xl lg:text-6xl leading-snug">
+          Discover your perfect<br />Career Path with AI
+        </h1>
+        <div className="flex flex-col items-center mt-8">
+          <button className="text-white font-bold text-lg px-8 py-2 border-2 border-solid rounded-full hover:bg-gray-200 hover:text-black transition">
+            JOIN US
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
 
-export default Hero
+export default Hero;

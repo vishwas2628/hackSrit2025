@@ -1,22 +1,31 @@
-import React from 'react';
+import React from 'react'
 import assets from '../assets/assets.js';
 
-const Login = () => {
+
+const SignUp = () => {
   return (
     <div className="flex h-screen bg-[#212121]">
       {/* Left Section */}
       <div className="w-full sm:w-1/2 flex flex-col justify-center items-center bg-[#212121] text-white p-8">
-        <h1 className="text-2xl font-semibold mb-2">Log in to <span className="text-blue-500">FutureMap</span></h1>
+        <h1 className="text-2xl font-semibold mb-2">Sign up to <span className="text-blue-500">FutureMap</span></h1>
         <p className="text-sm mb-8">
-          Don't have an account? <a href="/signup" className="text-blue-500 hover:underline">Create an account</a>
+          Do you have an account? <a href="/login" className="text-blue-500 hover:underline">Sign In</a>
         </p>
-        {/* Login Form */}
+        {/* SignUp Form */}
         <form className="w-full max-w-sm">
           <div className="mb-4">
-            <label htmlFor="email" className="block text-sm font-medium mb-1">Email-id</label>
+            <label htmlFor="user" className="block text-sm font-medium mb-1">User-name</label>
             <input
-              type="email"
-              id="email"
+              type="text"
+              id="user"
+              className="w-full p-3 bg-[#333333] text-white rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+          <div className="mb-6">
+            <label htmlFor="password" className="block text-sm font-medium mb-1">Password</label>
+            <input
+              type="password"
+              id="password"
               className="w-full p-3 bg-[#333333] text-white rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
@@ -45,7 +54,8 @@ const Login = () => {
         }}
       ></div>
     </div>
-  );
-};
 
-export default Login;
+  )
+}
+
+export default SignUp

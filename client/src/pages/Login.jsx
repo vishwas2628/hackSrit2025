@@ -1,27 +1,41 @@
-import React from 'react'
-import Title from '../../../../Ecommerce-Website/frontend/src/components/Title'
+import Btn  from "../components/ui/Btn.jsx";
+import Inp  from "../components/ui/Inp.jsx";
+import Image from '../assets/login_background_dark.png'
+import React from "react";
 
-const Login = () => {
+const Login= () => {
   return (
-    <form className='flex flex-col items-center w-[90%] sm:max-w-96 m-auto mt-14 gap-4 text-gray-800' action="">
-      <div className='inline-flex items-center gap-2 mb-2 mt-10'>
-        <p className='prata-regular text-3xl'><Title text1={"Log"} text2={'-In'}/></p>
-        <hr className='border-none h-[1.5px] w-8 bg-gray-800' />
+    <div className="h-screen w-screen bg-gray-900 flex " >
+        <div className="flex flex-col justify-center  p-8 md:w-1/2" style={{
+        backgroundColor:"#262727"
+      }}>
+          <div className="mb-8">
+            <img
+              src="../assets/futuremapLogo.png"
+              alt="FutureMap Logo"
+              className="h-12 mb-4"
+            />
+            <h2 className="text-3xl text-white font-bold">Log in to <span className="text-blue-500">FutureMap</span></h2>
+            <p className="text-gray-400 mt-2">
+              Don't have an account? <a href="/register" className="text-blue-500 underline">Create an account</a>
+            </p>
+          </div>
+          <form>
+            <Inp/>
+            <Inp/>
+            < Btn text1="Sign-In"/>
+          </form>
+        </div>
+        <div  style={{
+        backgroundImage: `url(${Image})`,
+        backgroundSize: 'contain', // or 'contain', 'auto'
+        backgroundRepeat: 'no-repeat',
+        height: '100%', // Set the height of the div
+        width: '100%', // Set the width of the div
+      }}>
+        </div>
       </div>
-      {/* {currentState === 'Login' ? '' :<input onChange={(e)=>setName(e.target.value)} value={name} type="text" className='w-full px-3 py-2 border border-gray-800' placeholder='Name' required />} */}
-      <input  type="email" className='w-full px-3 py-2 border border-gray-800' placeholder='Email' required />
-      <input  type="password" className='w-full px-3 py-2 border border-gray-800' placeholder='Password' required />
-      <div className='w-full flex justify-between text-sm mt-[-8px]'>
-        <p className='cursor-pointer'>Forget Your Password</p>
-        {/* {
-          currentState === 'Login'
-          ? <p  className='cursor-pointer'>Create Account</p>
-          : <p  className='cursor-pointer'>Login Here</p>
-        } */}
-      </div>
-      <button type='submit' className='bg-black text-white font-light px-8 py-2 mt-4'>dfd</button>
-    </form>
-  )
-}
+  );
+};
 
-export default Login
+export default Login;

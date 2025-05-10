@@ -8,6 +8,8 @@ import connectDB from "./config/database.config.js";
 import promptRoutes from "./routes/prompt.js";
 import flowchartRoutes from "./routes/flowchart.js";
 import errorHandler from "./middleware/error.middleware.js";
+import userRoutes from "./routes/userRoutes.js";
+import recommendationRoutes from "./routes/recommendationRoutes.js";
 
 // Load environment variables
 dotenv.config();
@@ -32,6 +34,9 @@ app.get("/", (req, res) => {
 // API routes
 app.use("/api/prompt", promptRoutes);
 app.use("/api/showChart", flowchartRoutes);
+
+app.use("/api/user", userRoutes);
+app.use("/api/recommendation", recommendationRoutes);
 
 // Error handling middleware
 app.use(errorHandler);

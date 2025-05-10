@@ -2,17 +2,6 @@
 import mongoose, { Schema } from "mongoose";
 import bcrypt from "bcrypt";
 
-// Predefined interest categories for userInputSchema
-const interestCategories = [
-  "Tech",
-  "Healthcare",
-  "Education",
-  "Arts",
-  "Engineering",
-  "Business",
-  "Other",
-];
-
 // Predefined education levels with progress percentages
 const educationLevels = {
   "High School": 20,
@@ -26,6 +15,7 @@ const educationLevels = {
 // Schema for career inputs
 const userInputSchema = new Schema(
   {
+    userId: { type: Schema.Types.ObjectId, ref: "User", required: true },
     skills: {
       type: [String],
       required: true,
@@ -37,18 +27,10 @@ const userInputSchema = new Schema(
     interests: {
       type: [String],
       required: true,
-      validate: [
-        {
-          validator: (v) => v && v.length > 0,
-          message: "Interests must be a non-empty array",
-        },
-        {
-          validator: (v) =>
-            v.every((interest) => interestCategories.includes(interest)),
-          message:
-            "Each interest must be a valid category: Tech, Healthcare, Education, Arts, Engineering, Business, or Other",
-        },
-      ],
+      validate: {
+        validator: (v) => v && v.length > 0,
+        message: "Interests must be a non-empty array",
+      },
     },
     budget: {
       type: Number,
@@ -66,28 +48,14 @@ const userInputSchema = new Schema(
   { timestamps: true }
 );
 
-// Schema for user authentication and details
+// Schema for users
 const userSchema = new Schema(
   {
-    username: {
-      type: String,
-      required: [true, "Username is required"],
-      unique: true,
-      trim: true,
-      minlength: [4, "Username must be at least 4 characters"],
-      maxlength: [30, "Username cannot exceed 30 characters"],
-    },
     password: {
       type: String,
       required: [true, "Password is required"],
       minlength: [8, "Password must be at least 8 characters"],
       select: false,
-    },
-    firstName: {
-      type: String,
-      required: [true, "First name is required"],
-      trim: true,
-      maxlength: [50, "First name cannot exceed 50 characters"],
     },
     email: {
       type: String,
@@ -101,19 +69,26 @@ const userSchema = new Schema(
         message: "Please enter a valid email address",
       },
     },
+    firstName: {
+      type: String,
+      trim: true,
+      maxlength: [50, "First name cannot exceed 50 characters"],
+    },
     educationLevel: {
       type: String,
       enum: {
         values: Object.keys(educationLevels),
         message: "{VALUE} is not a valid education level",
       },
-      required: [true, "Education level is required"],
     },
     fields: {
-      type: [String], // e.g., ["Computer Science", "Biology"]
+      type: [String],
+      default: undefined, // Explicitly set default to undefined
       validate: {
-        validator: (v) => v && v.length > 0,
-        message: "Fields must be a non-empty array",
+        // Allow undefined, null, or a non-empty array
+        validator: (v) =>
+          v === undefined || v === null || (Array.isArray(v) && v.length > 0),
+        message: "Fields must be a non-empty array if provided",
       },
     },
     experience: {
@@ -123,22 +98,21 @@ const userSchema = new Schema(
     },
     birthDate: {
       type: Date,
-      required: [true, "Birth date is required"],
       validate: {
-        validator: (date) => date < new Date(),
+        validator: (date) => !date || date < new Date(),
         message: "Birth date must be in the past",
       },
     },
     location: {
       type: new Schema(
         {
-          city: { type: String, trim: true },
-          state: { type: String, trim: true },
-          country: { type: String, trim: true, required: true },
+          city: { type: String, trim: true, required: false },
+          state: { type: String, trim: true, required: false },
+          country: { type: String, trim: true, required: false },
         },
         { _id: false }
       ),
-      required: [true, "Location is required"],
+      required: false,
     },
     streetAddress: {
       type: String,
@@ -162,10 +136,6 @@ userSchema.virtual("age").get(function () {
   if (!hasBirthdayOccurred) age--;
   return age;
 });
-
-// Indexes
-userSchema.index({ username: 1 });
-userSchema.index({ email: 1 });
 
 // Password validation and hashing
 userSchema.pre("validate", function (next) {

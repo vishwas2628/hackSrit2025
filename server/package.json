@@ -1,0 +1,14 @@
+{
+  "name": "server",
+  "version": "1.0.0",
+  "description": "hackathon",
+  "main": "index.js",
+  "scripts": {
+    "test": "text"
+  },
+  "author": "Sachin Sen",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^5.1.0"
+  }
+}

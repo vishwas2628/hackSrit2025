@@ -1,6 +1,6 @@
 // backend/index.js
 import express from "express";
-import cors from "express";
+import cors from "cors";
 import dotenv from "dotenv";
 import mongoose from "mongoose";
 import net from "net";

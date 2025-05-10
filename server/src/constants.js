@@ -1,1 +1,1 @@
-export const DB_NAME = "furturePath";
+export const DB_NAME = "futurePath";

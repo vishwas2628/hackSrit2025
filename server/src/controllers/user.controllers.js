@@ -6,24 +6,36 @@ import jwt from "jsonwebtoken";
 // Signup
 const signup = async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { username, email, password } = req.body;
 
     // Validate required fields
-    if (!email || !password) {
-      throw new ApiError(400, "Email and password are required");
+    if (!username || !email || !password) {
+      const missingFields = [];
+      if (!username) missingFields.push("Username is required");
+      if (!email) missingFields.push("Email is required");
+      if (!password) missingFields.push("Password is required");
+
+      return res.status(400).json({
+        error: "Validation failed",
+        details: missingFields,
+      });
     }
 
-    // Check if user already exists
-    const existingUser = await User.findOne({ email });
-    if (existingUser) {
+    // Check if email already exists
+    const existingEmail = await User.findOne({ email });
+    if (existingEmail) {
       throw new ApiError(400, "Email already exists");
     }
 
-    // Create new user
-    const user = new User({ email, password });
+    // Check if username already exists
+    const existingUsername = await User.findOne({ username });
+    if (existingUsername) {
+      throw new ApiError(400, "Username already exists");
+    }
+
+    const user = new User({ username, email, password });
     await user.save();
 
-    // Generate JWT token
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
       expiresIn: "1h",
     });
@@ -38,7 +50,6 @@ const signup = async (req, res) => {
     if (error instanceof ApiError) {
       return res.status(error.statusCode).json({ error: error.message });
     }
-    // Check if it's a Mongoose validation error
     if (error.name === "ValidationError") {
       const messages = Object.values(error.errors).map((err) => err.message);
       return res
@@ -54,11 +65,12 @@ const login = async (req, res) => {
   try {
     const { email, password } = req.body;
 
+    // Validate required fields
     if (!email || !password) {
       throw new ApiError(400, "Email and password are required");
     }
 
-    // Find user by email
+    // Find user by email and include password
     const user = await User.findOne({ email }).select("+password");
     if (!user) {
       throw new ApiError(401, "Invalid email or password");
@@ -85,7 +97,7 @@ const login = async (req, res) => {
     if (error instanceof ApiError) {
       return res.status(error.statusCode).json({ error: error.message });
     }
-    res.status(500).json({ error: "Failed to login" });
+    res.status(500).json({ error: "Failed to login", details: error.message });
   }
 };
 
@@ -93,6 +105,12 @@ const login = async (req, res) => {
 const getUser = async (req, res) => {
   try {
     const userId = req.params.userId;
+    const authenticatedUserId = req.user.id; // From authMiddleware
+
+    // Restrict access to the authenticated user only
+    if (userId !== authenticatedUserId) {
+      throw new ApiError(403, "You can only access your own user data");
+    }
 
     const user = await User.findById(userId);
     if (!user) {
@@ -108,51 +126,12 @@ const getUser = async (req, res) => {
     if (error instanceof ApiError) {
       return res.status(error.statusCode).json({ error: error.message });
     }
-    res.status(500).json({ error: "Failed to fetch user" });
+    res
+      .status(500)
+      .json({ error: "Failed to fetch user", details: error.message });
   }
 };
 
 // Update User Details (for Q&A flow)
-const updateUser = async (req, res) => {
-  try {
-    const userId = req.user.id; // From authMiddleware
-    const {
-      firstName,
-      educationLevel,
-      fields,
-      experience,
-      birthDate,
-      location,
-      streetAddress,
-    } = req.body;
 
-    const user = await User.findById(userId);
-    if (!user) {
-      throw new ApiError(404, "User not found");
-    }
-
-    // Update fields if provided
-    if (firstName) user.firstName = firstName;
-    if (educationLevel) user.educationLevel = educationLevel;
-    if (fields) user.fields = fields;
-    if (experience !== undefined) user.experience = Number(experience);
-    if (birthDate) user.birthDate = new Date(birthDate);
-    if (location) user.location = location;
-    if (streetAddress) user.streetAddress = streetAddress;
-
-    await user.save();
-
-    res.json({
-      success: true,
-      user: user.getSafeUserData(),
-    });
-  } catch (error) {
-    console.error("Error updating user:", error);
-    if (error instanceof ApiError) {
-      return res.status(error.statusCode).json({ error: error.message });
-    }
-    res.status(500).json({ error: "Failed to update user" });
-  }
-};
-
-export { signup, login, getUser, updateUser };
+export { signup, login, getUser };

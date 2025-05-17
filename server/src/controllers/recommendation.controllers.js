@@ -1,81 +1,89 @@
-import { error } from "console";
-import { UserInput } from "../models/userModel.js";
-import { getCareerRecomendations } from "../services/huggingface.services.js";
+// backend/src/controllers/recommendationController.js
+import { User } from "../models/userModel.js";
 import { ApiError } from "../utils/apiError.js";
-import spawn from "child_process";
+import { generateCareerRecommendations } from "../services/t5model.services.js";
 
 const getRecommendations = async (req, res) => {
   try {
     const userId = req.user.id; // From authMiddleware
     const { skills, interests, budget } = req.body;
 
+    // Validate input
     if (!skills || !Array.isArray(skills) || skills.length === 0) {
-      throw new ApiError(400, "Skills are required and must be an array");
+      throw new ApiError(400, "Skills must be a non-empty array");
     }
-
     if (!interests || !Array.isArray(interests) || interests.length === 0) {
-      throw new ApiError(400, "Interests are required and must be an array");
+      throw new ApiError(400, "Interests must be a non-empty array");
+    }
+    if (typeof budget !== "number" || budget < 0) {
+      throw new ApiError(400, "Budget must be a non-negative number");
     }
 
-    if (budget === undefined || budget === null || isNaN(Number(budget))) {
-      throw new ApiError(400, "Budget is required and must be a number");
-    }
+    // Log the request details
+    console.log(`Generating recommendations for user ${userId} with:
+    - Skills: ${skills.join(', ')}
+    - Interests: ${interests.join(', ')}
+    - Budget: ${budget}`);
 
-    const pythonProcess = spawn("python3", ["flan_t5_model.py"]);
-
-    const inputData = JSON.stringify({ skills, interests, budget });
-    pythonProcess.stdin.write(inputData);
-    pythonProcess.stdin.end();
-
-    let outputData = "";
-    let errorData = "";
-
-    //Collect output from python script
-
-    pythonProcess.stdout.on("data", (data) => {
-      outputData += data.toString();
-    });
-
-    pythonProcess.stderr.on("data", (data) => {
-      errorData += data.toString();
-    });
-
-    pythonProcess.on("close", async (code) => {
-      if (code !== 0) {
-        console.error("Python script error:", errorData);
-        return res.status(500).json({
-          error: "Failed to generate recommendations",
-          details: errorData,
-        });
-      }
-    });
-
-    let recommendation;
+    // Call T5 model service to generate recommendations
+    let recommendations;
     try {
-      recommendation = JSON.parse(outputData);
-    } catch (parseError) {
-      console.error("Error parsing Python outpsut: ", parseError);
-      return res.status(500).json({
-        error: "Failed to parse recommendations",
-        details: parseError.message,
+      // The T5 model service already returns parsed JSON, no need for additional parsing
+      recommendations = await generateCareerRecommendations(skills, interests, budget);
+      
+      console.log(`Received ${recommendations.length} recommendations from T5 model`);
+    } catch (modelError) {
+      console.error("T5 model error:", modelError);
+      throw new ApiError(
+        500,
+        `T5 model failed to generate recommendations: ${modelError.message}`
+      );
+    }
+
+    // Update the user's document with skills, interests, budget, and recommendations
+    const user = await User.findById(userId);
+    if (!user) {
+      throw new ApiError(404, "User not found");
+    }
+
+    user.skills = skills;
+    user.interests = interests;
+    user.budget = budget;
+    user.recommendations = recommendations;
+
+    await user.save();
+
+    // Send response
+    res.json({ careers: recommendations });
+    console.log(`Successfully sent recommendations to user ${userId}`);
+  } catch (error) {
+    console.error("Error in getRecommendations:", error);
+    
+    // Structured error handling
+    if (error instanceof ApiError) {
+      return res.status(error.statusCode).json({ 
+        error: error.message,
+        success: false 
       });
     }
-    const userInput = new UserInput({
-      userId,
-      skills,
-      interests,
-      budget,
-      recommendation,
-    });
-    await userInput.save();
-
-    res.json({ careers: recommendation });
-  } catch (error) {
-    console.error("Error processing recommendation:", error);
-    if (error instanceof ApiError) {
-      return res.status(error.statusCode).json({ error: error.message });
+    
+    // Determine appropriate status code based on error type
+    let statusCode = 500;
+    let errorMessage = "Failed to fetch recommendations";
+    
+    if (error.message.includes("timeout")) {
+      statusCode = 504; // Gateway Timeout
+      errorMessage = "Model processing timed out. Please try again.";
+    } else if (error.message.includes("parse")) {
+      statusCode = 500;
+      errorMessage = "Failed to process model output.";
     }
-    res.status(500).json({ error: "Failed to process recommendation" });
+    
+    res.status(statusCode).json({
+      error: errorMessage,
+      details: error.message,
+      success: false
+    });
   }
 };
 

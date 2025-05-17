@@ -1,5 +1,5 @@
 import { CareerRecommendation } from "../models/careerRecommendation.js";
-import { getCareerRecomendations } from "../services/huggingface.services.js"; // Fixed spelling and file name
+import { getCareerRecommendations } from "../services/huggingface.services.js"; // Fixed spelling
 import { ApiError } from "../utils/apiError.js";
 
 const submitPrompt = async (req, res) => {
@@ -19,11 +19,11 @@ const submitPrompt = async (req, res) => {
       throw new ApiError(400, "Budget is required and must be a number");
     }
 
-    const recommendations = await getCareerRecomendations(
+    const recommendations = await getCareerRecommendations({
       skills,
       interests,
-      Number(budget)
-    );
+      budget: Number(budget)
+    });
 
     if (!recommendations || !Array.isArray(recommendations)) {
       throw new ApiError(500, "Invalid recommendations received from service");

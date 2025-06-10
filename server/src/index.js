@@ -158,7 +158,7 @@ const findAvailablePort = async (startPort, maxAttempts = 10) => {
 
 // Start the server after connecting to MongoDB
 const DEFAULT_PORT = process.env.PORT || 8001;
-const FALLBACK_PORTS = 8001;
+const FALLBACK_PORTS = [8002, 8003, 8004, 8005]; // Array of fallback ports
 let server;
 
 const startServer = async () => {
@@ -175,29 +175,39 @@ const startServer = async () => {
         );
 
         // Try specified fallback ports first
+        let foundPort = false;
         for (const fallbackPort of FALLBACK_PORTS) {
-          if (await isPortAvailable(fallbackPort)) {
-            port = fallbackPort;
-            console.log(`Using fallback port ${port}`);
-            break;
+          try {
+            if (await isPortAvailable(fallbackPort)) {
+              port = fallbackPort;
+              foundPort = true;
+              console.log(`Using fallback port ${port}`);
+              break;
+            }
+          } catch (err) {
+            console.log(`Error checking fallback port ${fallbackPort}:`, err.message);
+            // Continue to next port
           }
         }
 
         // If all fallback ports are unavailable, find any available port
-        if (!(await isPortAvailable(port))) {
-          port = await findAvailablePort(3000, 20);
+        if (!foundPort) {
+          try {
+            port = await findAvailablePort(3000, 20);
 
-          if (port === -1) {
-            throw new Error(
-              "No available ports found. Please free up a port and try again."
-            );
+            if (port === -1) {
+              throw new Error(
+                "No available ports found. Please free up a port and try again."
+              );
+            }
+
+            console.log(`Using dynamically assigned port ${port}`);
+          } catch (err) {
+            console.error("Error finding available port:", err.message);
+            throw new Error("Failed to find an available port. Please restart the server.");
           }
-
-          console.log(`Using dynamically assigned port ${port}`);
         }
       }
-
-      // Start the server with the available port
       server = app.listen(port, () => {
         console.log(`Server is running on port ${port}`);
         console.log(`You can access the API at http://localhost:${port}`);

@@ -1,99 +1,93 @@
-import React from 'react'
-import assets from '../assets/assets.js'
+import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
+import assets from "../assets/assets";
 
 const Navbar = () => {
+  const [darkMode, setDarkMode] = useState(
+    localStorage.getItem("theme") === "dark"
+  );
+
+  useEffect(() => {
+    if (darkMode) {
+      document.documentElement.classList.add("dark");
+      localStorage.setItem("theme", "dark");
+    } else {
+      document.documentElement.classList.remove("dark");
+      localStorage.setItem("theme", "light");
+    }
+  }, [darkMode]);
+
+  // Navigation items array - reusable for both desktop and mobile menus
+  const navItems = [
+    { name: "Home", path: "/" },
+    { name: "Dashboard", path: "/dashboard" },
+    { name: "Career Planning", path: "/career-planning" },
+    { name: "Internship", path: "/internship" },
+    { name: "About", path: "/about" },
+  ];
+
   return (
-     <nav className="bg-[#000000]">
-      <div className="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8">
-        <div className="relative flex h-16 items-center justify-between">
-          {/* Logo and Navigation Links */}
-          <div className="flex flex-1 items-center justify-center sm:items-stretch sm:justify-start">
-            <a href='/' className="flex shrink-0 items-center">
-              <img
-                className="h-10 w-auto"
-                src={assets.logo}
-                alt="Your Company"
-              />
-            </a>
-            <div className="hidden sm:ml-6 sm:block">
-              <div className="flex space-x-4">
-                <a
-                  href="/dashboard"
-                  className="rounded-md  px-3 py-2 text-sm font-medium text-white hover:bg-gray-700 hover:text-white"
-                  aria-current="page"
-                >
-                  Dashboard
-                </a>
-                <a
-                  href="/internship"
-                  className="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white"
-                >
-                  Internships
-                </a>
-                <a
-                  href="/about"
-                  className="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white"
-                >
-                  Developers
-                </a>
-              </div>
-            </div>
+    <nav className="bg-white dark:bg-gray-900 shadow-md transition duration-300">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex justify-between h-16 items-center">
+          {/* Brand */}
+          <div className="flex items-center space-x-3">
+            <img
+              className="h-10 w-10 rounded-full border-2 border-gray-300 dark:border-gray-600 hover:border-blue-400 transition"
+              src={assets.logobg}
+              alt="User"
+            />
+            <span className="text-lg font-bold text-gray-900 dark:text-white">
+              FuturePath
+            </span>
           </div>
 
-          {/* User Profile */}
-          <div className="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0">
-            <div className="relative ml-3">
-              <button
-                type="button"
-                className="relative flex rounded-full bg-gray-800 text-sm focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800 focus:outline-none"
-                id="user-menu-button"
-                aria-expanded="false"
-                aria-haspopup="true"
+          {/* Desktop Menu */}
+          <div className="hidden sm:flex space-x-6">
+            {navItems.map((item, index) => (
+              <Link
+                key={index}
+                to={item.path}
+                className="text-gray-600 dark:text-gray-300 hover:text-blue-500 dark:hover:text-blue-400 font-medium transition"
               >
-                <span className="sr-only">Open user menu</span>
-                <img
-                  className="h-8 w-8 rounded-full"
-                  src={assets.logobg}
-                  alt=""
-                />
-              </button>
-            </div>
+                {item.name}
+              </Link>
+            ))}
           </div>
+
+          <button>
+            <Link
+              to="/login"
+              className="text-gray-600 bg-blue-800 p-3 rounded-md  dark:text-gray-300 hover:bg-blue-900 font-medium transition"
+            >
+              Login
+            </Link>
+          </button>
+
+          {/* Theme Toggle */}
+          <button
+            onClick={() => setDarkMode(!darkMode)}
+            className="text-gray-600 dark:text-gray-300 hover:text-yellow-400 p-2 rounded-full focus:outline-none transition"
+          >
+            {darkMode ? "🌙" : "☀️"}
+          </button>
         </div>
       </div>
 
       {/* Mobile menu */}
-      <div className="sm:hidden" id="mobile-menu">
-        <div className="space-y-1 px-2 pt-2 pb-3">
-          <a
-            href="/dashboard"
-            className="block rounded-md bg-gray-900 px-3 py-2 text-base font-medium text-white"
-            aria-current="page"
+      <div className="sm:hidden px-4 pb-3 pt-2 space-y-2">
+        {navItems.map((item, index) => (
+          <Link
+            key={index}
+            to={item.path}
+            className="block text-gray-700 dark:text-gray-300 hover:text-blue-500 dark:hover:text-blue-400 font-medium transition"
           >
-            Dashboard
-          </a>
-          <a
-            href="/internship"
-            className="block rounded-md px-3 py-2 text-base font-medium text-gray-300 hover:bg-gray-700 hover:text-white"
-          >
-            Internship
-          </a>
-          <a
-            href="#"
-            className="block rounded-md px-3 py-2 text-base font-medium text-gray-300 hover:bg-gray-700 hover:text-white"
-          >
-            About
-          </a>
-          <a
-            href="#"
-            className="block rounded-md px-3 py-2 text-base font-medium text-gray-300 hover:bg-gray-700 hover:text-white"
-          >
-            Calendar
-          </a>
-        </div>
+            {item.name}
+          </Link>
+        ))}
       </div>
     </nav>
-  )
-}
+  );
+};
 
-export default Navbar
+export default Navbar;
